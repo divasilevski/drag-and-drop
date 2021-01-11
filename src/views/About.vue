@@ -1,5 +1,22 @@
-<template>
-  <div class="about">
-    <h1>This is an about page</h1>
-  </div>
+<template lang="pug">
+.about
+  DropTable
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+import DropTable from "@/components/DropTable.vue";
+
+export default defineComponent({
+  name: "About",
+  components: {
+    DropTable,
+  },
+});
+</script>
+
+<style lang="scss">
+.input-box {
+  width: 300px;
+}
+</style>
