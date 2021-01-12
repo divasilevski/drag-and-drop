@@ -7,6 +7,9 @@
       @dragstart="start(widget)"
       @dragend="end(widget)"
     ) {{ widget.size.col + 'x' + widget.size.row}}
+    .basket(
+      @dragenter="enter(1000, $event)"
+    )
 
   .drop-aria
     .drop-aria__grid
@@ -29,7 +32,6 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import DrugBox from "./DrugBox.vue";
-import DrugBoxBig from "./DrugBoxBig.vue";
 
 type HTMLElementEvent<T extends HTMLElement> = Event & {
   target: T;
@@ -54,7 +56,6 @@ const SIZE = {
 export default defineComponent({
   components: {
     "drug-box": DrugBox,
-    "drug-box-big": DrugBoxBig,
   },
   data: () => ({
     widgets: [
@@ -64,13 +65,10 @@ export default defineComponent({
       { instance: "drug-box", size: { col: 2, row: 2 } },
     ],
     indexes: [] as any, // Отвечают чисто за место
-    table: [] as any, // Отвечают также за место под солнцем
+    table: [] as any, // Отвечают за место под солнцем
     drugArea: null as number | null,
     selectedWidget: null as Widget | null,
   }),
-  created() {
-    console.log(this.$options);
-  },
   computed: {
     count() {
       return SIZE.row * SIZE.col;
@@ -84,6 +82,21 @@ export default defineComponent({
     enter(index: number, event: HTMLElementEvent<HTMLTextAreaElement>) {
       if (!this.selectedWidget) return;
       const size: Size = this.selectedWidget.size;
+
+      if (index === 1000) {
+        for (let i = 0; i < size.col; i++) {
+          for (let j = 0; j < size.row; j++) {
+            if (this.selectedWidget.index !== undefined) {
+              const index = this.selectedWidget.index + i + SIZE.col * j;
+              this.indexes[index] = null;
+            }
+          }
+        }
+        this.table[this.selectedWidget.index] = null;
+        this.drugArea = null;
+        return;
+      }
+
       this.drugArea = this.calculateIndex(index, size);
 
       for (let i = 0; i < size.col; i++) {
@@ -168,6 +181,12 @@ $row: 3;
       height: 40px;
       margin: 5px;
       cursor: move;
+    }
+
+    .basket {
+      width: 50px;
+      border: 2px dashed #232323;
+      margin-left: 50px;
     }
   }
 
