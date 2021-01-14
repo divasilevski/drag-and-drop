@@ -5,17 +5,12 @@
       v-for="(widget, index) in widgets" :key="'widget-' + index"
       @mousedown="start(widget, $event)"
     ) {{ widget.size.col + 'x' + widget.size.row}}
-    .basket(
-    )
 
   .drop-aria
     .drop-aria__grid
       .drop-aria__box(
         v-for="(_, index) in count" :key="'box-' + index"
-
       )
-        template(v-if="index === drugArea")
-          .box-selector(:style="wrapStyle(grugItem?.size)")
     
     .absolute-box(
       v-for="(item, key) in board.items" :key="key"
@@ -60,17 +55,15 @@ export default defineComponent({
       { instance: "drug-box", size: { col: 2, row: 1 } },
       { instance: "drug-box", size: { col: 2, row: 2 } },
     ],
-    indexes: [] as any, // Отвечают чисто за место
-    table: [] as any, // Отвечают за место под солнцем
     board: {} as Board,
-    drugArea: null as number | null,
     grugItem: {} as any,
   }),
   mounted() {
     this.board = new Board(
       SIZE,
       this.$el.querySelector(".drop-aria"),
-      this.$el.querySelector(".box-selector")
+      this.$el.querySelector(".box-selector"),
+      this.$el.querySelector(".widgets")
     );
   },
   computed: {
@@ -103,6 +96,7 @@ $row: 3;
     width: 100%;
     display: flex;
     justify-content: center;
+    border: 1px dashed white;
 
     .widget {
       display: flex;
@@ -113,12 +107,6 @@ $row: 3;
       height: 40px;
       margin: 5px;
       cursor: move;
-    }
-
-    .basket {
-      width: 50px;
-      border: 2px dashed #232323;
-      margin-left: 50px;
     }
   }
 

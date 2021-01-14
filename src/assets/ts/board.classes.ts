@@ -60,10 +60,7 @@ export class BoardItem {
       const delta = this.calculateDelta(event);
       const position = this.board.calculatePosition(event, this);
 
-      if (position) {
-        this.board.showPattern(this.size, position);
-        this.pos = position;
-      }
+      if (position) this.pos = position;
 
       this.$el.style.left = this.$el.offsetLeft + delta.x + "px";
       this.$el.style.top = this.$el.offsetTop + delta.y + "px";
@@ -71,15 +68,17 @@ export class BoardItem {
   }
 
   endMove(event: MouseEvent) {
-    if (this.$el && this.pos) {
-      this.board.hidePattern();
+    if (this.$el && this.pos && !isNaN(this.pos.x)) {
       this.stick();
       this.board.changeTable(this.pos, this.size, this.key);
       this.$el.style.zIndex = "70";
       this.mouse = undefined;
-      document.onmousemove = null;
-      document.onmouseup = null;
+    } else {
+      this.board.removeItem(this.key);
     }
+    this.board.hidePattern();
+    document.onmousemove = null;
+    document.onmouseup = null;
   }
 
   // utils
@@ -118,15 +117,20 @@ export class Board {
 
   private $pattern: HTMLElement;
   private table: Array<Array<null | string>>; // null - если ячейка свободна, 'key' - ключ для заполненной ячейки
+  private $panel: HTMLElement;
 
-  constructor(tableSize: Size, root: HTMLElement, pattern: HTMLElement) {
+  constructor(
+    tableSize: Size,
+    root: HTMLElement,
+    pattern: HTMLElement,
+    panel: HTMLElement
+  ) {
     this.size = tableSize;
     this.table = createMatrix(tableSize, null);
     this.$root = root;
     this.$pattern = pattern;
+    this.$panel = panel;
     this.hidePattern();
-
-    console.log(this);
   }
 
   addItem(instanceName: string, options: object, id: number = 0): BoardItem {
@@ -146,6 +150,10 @@ export class Board {
     return boardItem;
   }
 
+  removeItem(key: string) {
+    delete this.items[key];
+  }
+
   // $pattern
   showPattern(size: Size, position: Position) {
     this.$pattern.style.top = (100 / this.size.row) * position.y + "%";
@@ -157,6 +165,7 @@ export class Board {
 
   hidePattern() {
     this.$pattern.style.display = "none";
+    this.$panel.style.borderColor = "white";
   }
 
   // table
@@ -181,7 +190,10 @@ export class Board {
 
   // Calculation
   calculatePosition(e: MouseEvent, { pos, size, start }: BoardItem) {
-    console.log(start.dx);
+    if (this.isBasket(e.pageX, e.pageY)) {
+      return { x: NaN, y: NaN };
+    }
+
     let X = e.pageX - this.$root.offsetLeft - start.dx;
     let Y = e.pageY - this.$root.offsetTop - start.dy;
     const W = this.$root.offsetWidth;
@@ -200,9 +212,28 @@ export class Board {
     if (comparePositions(position, pos)) return null;
     if (this.hasTableKeys(position, size)) return null;
 
+    this.showPattern(size, position);
+
     return position;
   }
+
+  isBasket(x: number, y: number): boolean {
+    if (
+      x > this.$panel.offsetLeft &&
+      y > this.$panel.offsetTop &&
+      x < this.$panel.offsetLeft + this.$panel.offsetWidth &&
+      y < this.$panel.offsetTop + this.$panel.offsetHeight
+    ) {
+      this.$pattern.style.display = "none";
+      this.$panel.style.borderColor = "black";
+      return true;
+    }
+    this.$panel.style.borderColor = "white";
+    return false;
+  }
 }
+
+// ------------------------------------
 
 function comparePositions(
   pos1: Position | null,

@@ -1,7 +1,5 @@
 <template lang="pug">
-.drug-box(
-  @click="number++"
-)
+.drug-box(@click="number++")
   .text( v-text="number")
 </template>
 
@@ -21,9 +19,23 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .drug-box {
-  background: red;
-  width: 100%;
-  height: 100%;
+  width: calc(100% - 20px);
+  height: calc(100% - 20px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   cursor: move;
+  padding: 10px;
+
+  .text {
+    width: 100%;
+    height: 100%;
+    background: grey;
+    border-radius: 10px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>
