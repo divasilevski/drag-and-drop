@@ -3,39 +3,35 @@
   .widgets
     .widget(
       v-for="(widget, index) in widgets" :key="'widget-' + index"
-      draggable="true"
-      @dragstart="start(widget)"
-      @dragend="end(widget)"
+      @mousedown="start(widget, $event)"
     ) {{ widget.size.col + 'x' + widget.size.row}}
     .basket(
-      @dragenter="enter(1000, $event)"
     )
 
   .drop-aria
     .drop-aria__grid
       .drop-aria__box(
         v-for="(_, index) in count" :key="'box-' + index"
-        @dragenter="enter(index, $event)"
+
       )
-        template(v-if="table[index]")
-          .box-wrapper(:style="wrapStyle(table[index].size)")
-            component(
-              :is="table[index].instance"
-              @dragstart.capture="start(table[index])"
-              @dragend="end(table[index])"
-            )
         template(v-if="index === drugArea")
-          .box-selector(:style="wrapStyle(selectedWidget?.size)")
+          .box-selector(:style="wrapStyle(grugItem?.size)")
+    
+    .absolute-box(
+      v-for="(item, key) in board.items" :key="key"
+      @mousedown="start(item, $event)"
+      :data-id="item.key"
+    )
+      component(:is="item.instance" )
+    
+    .box-selector
 
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import DrugBox from "./DrugBox.vue";
-
-type HTMLElementEvent<T extends HTMLElement> = Event & {
-  target: T;
-};
+import { Board, BoardItem } from "@/assets/ts/board.classes.ts";
 
 interface Size {
   col: number;
@@ -66,94 +62,30 @@ export default defineComponent({
     ],
     indexes: [] as any, // Отвечают чисто за место
     table: [] as any, // Отвечают за место под солнцем
+    board: {} as Board,
     drugArea: null as number | null,
-    selectedWidget: null as Widget | null,
+    grugItem: {} as any,
   }),
+  mounted() {
+    this.board = new Board(
+      SIZE,
+      this.$el.querySelector(".drop-aria"),
+      this.$el.querySelector(".box-selector")
+    );
+  },
   computed: {
     count() {
       return SIZE.row * SIZE.col;
     },
   },
   methods: {
-    start(widget: Widget) {
-      this.selectedWidget = JSON.parse(JSON.stringify(widget));
-      // По хорошему создавать ивент ентера и енда
-    },
-    enter(index: number, event: HTMLElementEvent<HTMLTextAreaElement>) {
-      if (!this.selectedWidget) return;
-      const size: Size = this.selectedWidget.size;
-
-      if (index === 1000) {
-        for (let i = 0; i < size.col; i++) {
-          for (let j = 0; j < size.row; j++) {
-            if (this.selectedWidget.index !== undefined) {
-              const index = this.selectedWidget.index + i + SIZE.col * j;
-              this.indexes[index] = null;
-            }
-          }
-        }
-        this.table[this.selectedWidget.index] = null;
-        this.drugArea = null;
-        return;
+    start(widget: any, event: any) {
+      if (!(widget instanceof BoardItem)) {
+        this.grugItem = this.board.addItem(widget.instance, widget);
+      } else {
+        this.grugItem = widget;
       }
-
-      this.drugArea = this.calculateIndex(index, size);
-
-      for (let i = 0; i < size.col; i++) {
-        for (let j = 0; j < size.row; j++) {
-          const index = this.drugArea + i + SIZE.col * j;
-          if (this.indexes[index]) {
-            this.drugArea = null;
-            return;
-          }
-        }
-      }
-    },
-    end(index: number) {
-      if (this.drugArea !== null) {
-        if (!this.selectedWidget) return;
-        const size: Size = this.selectedWidget.size;
-        for (let i = 0; i < size.col; i++) {
-          for (let j = 0; j < size.row; j++) {
-            if (this.selectedWidget.index !== undefined) {
-              const index = this.selectedWidget.index + i + SIZE.col * j;
-              this.indexes[index] = null;
-            }
-            const index = this.drugArea + i + SIZE.col * j;
-            this.indexes[index] = this.selectedWidget.instance;
-          }
-        }
-        if (this.selectedWidget.index !== undefined) {
-          this.table[this.selectedWidget.index] = null;
-        }
-        this.selectedWidget.index = this.drugArea;
-        this.table[this.drugArea] = this.selectedWidget;
-        this.drugArea = null;
-      }
-    },
-
-    calculateIndex(index: number, size: Size): number {
-      const currentRow = Math.floor(index / SIZE.col);
-      const currentCol = index % SIZE.col;
-      const maxRow = SIZE.row - size.row;
-      const maxCol = SIZE.col - size.col;
-
-      if (currentRow > maxRow) {
-        return this.calculateIndex(index - SIZE.col, size);
-      }
-      if (currentCol > maxCol) {
-        return this.calculateIndex(index - 1, size);
-      }
-
-      return index;
-    },
-
-    wrapStyle(size: Size): any {
-      if (!size) return "";
-      return `
-        width: ${200 * size.col - 20}px;
-        height: ${200 * size.row - 20}px;
-      `;
+      this.grugItem.startMove(event);
     },
   },
 });
@@ -208,7 +140,7 @@ $row: 3;
         position: relative;
         width: 200px;
         height: 200px;
-        // border: 1px solid #ddd;
+        border: 1px solid #ddd;
       }
     }
   }
@@ -216,12 +148,13 @@ $row: 3;
   .box-selector {
     position: absolute;
     background: #ccc;
-    padding: 10px;
   }
   .box-wrapper {
     position: absolute;
-    padding: 10px;
     z-index: 10;
+  }
+  .absolute-box {
+    position: absolute;
   }
 }
 </style>
