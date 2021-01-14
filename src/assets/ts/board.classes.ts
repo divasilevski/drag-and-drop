@@ -33,26 +33,32 @@ export class BoardItem {
     this.board = board;
   }
 
-  addElement(el: HTMLElement) {
+  addElement(el: HTMLElement, event: MouseEvent) {
+    const $root = this.board.$root;
+    el.style.width = (100 / this.board.size.col) * this.size.col + "%";
+    el.style.height = (100 / this.board.size.row) * this.size.row + "%";
+    el.style.left = event.pageX - $root.offsetLeft - el.offsetWidth / 2 + "px";
+    el.style.top = event.pageY - $root.offsetTop - el.offsetHeight / 2 + "px";
+    el.style.opacity = "1";
     this.$el = el;
-    this.$el.style.width = (100 / this.board.size.col) * this.size.col + "%";
-    this.$el.style.height = (100 / this.board.size.row) * this.size.row + "%";
   }
 
   // events
   startMove(event: MouseEvent) {
-    if (this.$el) {
-      this.$el.style.zIndex = "71";
+    setTimeout(() => {
+      if (this.$el) {
+        this.$el.style.zIndex = "71";
 
-      this.calculateStart(event);
+        this.calculateStart(event);
 
-      if (this.pos) {
-        this.board.changeTable(this.pos, this.size, null);
+        if (this.pos) {
+          this.board.changeTable(this.pos, this.size, null);
+        }
+
+        document.onmousemove = this.move.bind(this);
+        document.onmouseup = this.endMove.bind(this);
       }
-
-      document.onmousemove = this.move.bind(this);
-      document.onmouseup = this.endMove.bind(this);
-    }
+    });
   }
 
   move(event: MouseEvent) {
@@ -68,6 +74,7 @@ export class BoardItem {
   }
 
   endMove(event: MouseEvent) {
+    console.log("endMove");
     if (this.$el && this.pos && !isNaN(this.pos.x)) {
       this.stick();
       this.board.changeTable(this.pos, this.size, this.key);
@@ -133,10 +140,15 @@ export class Board {
     this.hidePattern();
   }
 
-  addItem(instanceName: string, options: object, id: number = 0): BoardItem {
+  addItem(
+    instanceName: string,
+    options: object,
+    event: MouseEvent,
+    id: number = 0
+  ): BoardItem {
     const key = instanceName + id;
     if (this.items[key]) {
-      return this.addItem(instanceName, options, id + 1);
+      return this.addItem(instanceName, options, event, id + 1);
     }
     const boardItem = new BoardItem(key, options, this);
     this.items[instanceName + id] = boardItem;
@@ -144,7 +156,7 @@ export class Board {
     setTimeout(() => {
       const selector = `[data-id="${key}"]`;
       const $el = this.$root.querySelector(selector) as HTMLElement;
-      boardItem.addElement($el);
+      boardItem.addElement($el, event);
     }, 0);
 
     return boardItem;

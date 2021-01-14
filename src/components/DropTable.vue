@@ -7,11 +7,6 @@
     ) {{ widget.size.col + 'x' + widget.size.row}}
 
   .drop-aria
-    .drop-aria__grid
-      .drop-aria__box(
-        v-for="(_, index) in count" :key="'box-' + index"
-      )
-    
     .absolute-box(
       v-for="(item, key) in board.items" :key="key"
       @mousedown="start(item, $event)"
@@ -26,6 +21,9 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import DrugBox from "./DrugBox.vue";
+import DrugBox2 from "./DrugBox2.vue";
+import DrugBox3 from "./DrugBox3.vue";
+import DrugBox4 from "./DrugBox4.vue";
 import { Board, BoardItem } from "@/assets/ts/board.classes.ts";
 
 interface Size {
@@ -33,27 +31,24 @@ interface Size {
   row: number;
 }
 
-interface Widget {
-  instance: string;
-  size: Size;
-  index: number;
-}
-
 const SIZE = {
-  col: 4,
-  row: 3,
+  col: 6,
+  row: 5,
 };
 
 export default defineComponent({
   components: {
     "drug-box": DrugBox,
+    "drug-box2": DrugBox2,
+    "drug-box3": DrugBox3,
+    "drug-box4": DrugBox4,
   },
   data: () => ({
     widgets: [
       { instance: "drug-box", size: { col: 1, row: 1 } },
-      { instance: "drug-box", size: { col: 1, row: 2 } },
-      { instance: "drug-box", size: { col: 2, row: 1 } },
-      { instance: "drug-box", size: { col: 2, row: 2 } },
+      { instance: "drug-box2", size: { col: 1, row: 2 } },
+      { instance: "drug-box3", size: { col: 2, row: 1 } },
+      { instance: "drug-box4", size: { col: 2, row: 2 } },
     ],
     board: {} as Board,
     grugItem: {} as any,
@@ -74,7 +69,7 @@ export default defineComponent({
   methods: {
     start(widget: any, event: any) {
       if (!(widget instanceof BoardItem)) {
-        this.grugItem = this.board.addItem(widget.instance, widget);
+        this.grugItem = this.board.addItem(widget.instance, widget, event);
       } else {
         this.grugItem = widget;
       }
@@ -91,6 +86,7 @@ $row: 3;
 .drop-table {
   width: 100%;
   height: 100%;
+  user-select: none;
 
   .widgets {
     width: 100%;
@@ -128,21 +124,26 @@ $row: 3;
         position: relative;
         width: 200px;
         height: 200px;
-        border: 1px solid #ddd;
+        user-select: none;
+        // border: 1px solid #ddd;
       }
     }
   }
 
   .box-selector {
     position: absolute;
-    background: #ccc;
+    // background: rgb(238, 237, 237);
+    border: 2px dashed #ccc;
+    border-radius: 10px;
   }
   .box-wrapper {
     position: absolute;
+
     z-index: 10;
   }
   .absolute-box {
     position: absolute;
+    opacity: 0;
   }
 }
 </style>

@@ -30,7 +30,7 @@ export default defineComponent({
   .text {
     width: 100%;
     height: 100%;
-    background: thistle;
+    background: rgb(231, 133, 62);
     border-radius: 10px;
 
     display: flex;
