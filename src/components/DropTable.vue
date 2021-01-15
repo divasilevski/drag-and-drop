@@ -24,7 +24,7 @@ import DrugBox from "./DrugBox.vue";
 import DrugBox2 from "./DrugBox2.vue";
 import DrugBox3 from "./DrugBox3.vue";
 import DrugBox4 from "./DrugBox4.vue";
-import { Board, BoardItem } from "@/assets/ts/board.classes.ts";
+import { Board, BoardItem, BoardOptions } from "@/assets/ts/board.classes.ts";
 
 interface Size {
   col: number;
@@ -37,6 +37,18 @@ const SIZE = {
 };
 
 export default defineComponent({
+  props: {
+    options: {
+      type: Object,
+      default: () => ({
+        size: {
+          col: 4,
+          row: 3,
+        },
+        state: {},
+      }),
+    },
+  },
   components: {
     "drug-box": DrugBox,
     "drug-box2": DrugBox2,
@@ -52,19 +64,19 @@ export default defineComponent({
     ],
     board: {} as Board,
     grugItem: {} as any,
+    eventListener: null as any,
   }),
   mounted() {
     this.board = new Board(
-      SIZE,
+      this.options as BoardOptions,
       this.$el.querySelector(".drop-aria"),
       this.$el.querySelector(".box-selector"),
       this.$el.querySelector(".widgets")
     );
-  },
-  computed: {
-    count() {
-      return SIZE.row * SIZE.col;
-    },
+
+    this.eventListener = this.board.subscribe("change", (items: any) => {
+      this.$emit("change", items);
+    });
   },
   methods: {
     start(widget: any, event: any) {
@@ -75,6 +87,9 @@ export default defineComponent({
       }
       this.grugItem.startMove(event);
     },
+  },
+  beforeUnmount() {
+    this.eventListener.unsubscribe();
   },
 });
 </script>

@@ -8,6 +8,11 @@ interface Position {
   y: number;
 }
 
+export interface BoardOptions {
+  size: Size;
+  state: BoardItems<BoardItem>;
+}
+
 interface BoardItems<T> {
   [key: string]: T;
 }
@@ -28,19 +33,29 @@ export class BoardItem {
   // init methods
   constructor(key: string, options: any, board: Board) {
     this.key = key;
+    this.pos = options.pos || null;
     this.instance = options.instance;
     this.size = options.size;
     this.board = board;
   }
 
-  addElement(el: HTMLElement, event: MouseEvent) {
+  addElement(el: HTMLElement, event: MouseEvent | null) {
+    this.$el = el;
     const $root = this.board.$root;
     el.style.width = (100 / this.board.size.col) * this.size.col + "%";
     el.style.height = (100 / this.board.size.row) * this.size.row + "%";
-    el.style.left = event.pageX - $root.offsetLeft - el.offsetWidth / 2 + "px";
-    el.style.top = event.pageY - $root.offsetTop - el.offsetHeight / 2 + "px";
+
+    const hWidth = el.offsetWidth / 2;
+    const hHeight = el.offsetHeight / 2;
+
+    if (event) {
+      el.style.left = event.pageX - $root.offsetLeft - hWidth + "px";
+      el.style.top = event.pageY - $root.offsetTop - hHeight + "px";
+    } else {
+      this.stick();
+    }
+
     el.style.opacity = "1";
-    this.$el = el;
   }
 
   // events
@@ -74,10 +89,8 @@ export class BoardItem {
   }
 
   endMove(event: MouseEvent) {
-    console.log("endMove");
     if (this.$el && this.pos && !isNaN(this.pos.x)) {
       this.stick();
-      this.board.changeTable(this.pos, this.size, this.key);
       this.$el.style.zIndex = "70";
       this.mouse = undefined;
     } else {
@@ -86,6 +99,8 @@ export class BoardItem {
     this.board.hidePattern();
     document.onmousemove = null;
     document.onmouseup = null;
+
+    this.board.emit("change", this.board.getItems());
   }
 
   // utils
@@ -93,6 +108,7 @@ export class BoardItem {
     if (this.pos && this.$el) {
       this.$el.style.top = (100 / this.board.size.row) * this.pos.y + "%";
       this.$el.style.left = (100 / this.board.size.col) * this.pos.x + "%";
+      this.board.changeTable(this.pos, this.size, this.key);
     }
   }
 
@@ -125,25 +141,30 @@ export class Board {
   private $pattern: HTMLElement;
   private table: Array<Array<null | string>>; // null - если ячейка свободна, 'key' - ключ для заполненной ячейки
   private $panel: HTMLElement;
+  private listeners: { [key: string]: Function[] };
 
   constructor(
-    tableSize: Size,
+    options: BoardOptions,
     root: HTMLElement,
     pattern: HTMLElement,
     panel: HTMLElement
   ) {
-    this.size = tableSize;
-    this.table = createMatrix(tableSize, null);
+    this.size = options.size;
+    this.table = createMatrix(this.size, null);
     this.$root = root;
     this.$pattern = pattern;
     this.$panel = panel;
     this.hidePattern();
+    this.listeners = {};
+
+    this.createItems(options.state);
   }
 
+  // items
   addItem(
     instanceName: string,
     options: object,
-    event: MouseEvent,
+    event: MouseEvent | null = null,
     id: number = 0
   ): BoardItem {
     const key = instanceName + id;
@@ -160,6 +181,32 @@ export class Board {
     }, 0);
 
     return boardItem;
+  }
+
+  createItems(state: any) {
+    try {
+      const keys = Object.keys(state);
+      if (keys.length) {
+        keys.forEach((key: string) => {
+          this.addItem(state[key].instance, state[key]);
+        });
+      }
+    } catch (e) {
+      console.error("Failed to build the board from the passed data!");
+    }
+  }
+
+  getItems() {
+    const keys = Object.keys(this.items);
+    const result: any = {};
+    keys.forEach((key: string) => {
+      result[key] = {
+        instance: this.items[key].instance,
+        size: this.items[key].size,
+        pos: this.items[key].pos,
+      };
+    });
+    return result;
   }
 
   removeItem(key: string) {
@@ -242,6 +289,30 @@ export class Board {
     }
     this.$panel.style.borderColor = "white";
     return false;
+  }
+
+  // Observer pattern
+  subscribe(event: string, fn: Function) {
+    this.listeners[event] = this.listeners[event] || [];
+    this.listeners[event].push(fn);
+    return {
+      unsubscribe: () => {
+        this.listeners[event] = this.listeners[event].filter(
+          (listener) => listener !== fn
+        );
+      },
+    };
+  }
+
+  emit(event: string, ...args: any) {
+    if (!Array.isArray(this.listeners[event])) {
+      return false;
+    }
+
+    this.listeners[event].forEach((listener) => {
+      listener(...args);
+    });
+    return true;
   }
 }
 
