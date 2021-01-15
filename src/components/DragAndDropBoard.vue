@@ -3,7 +3,11 @@
   .drug-and-drop-board__top(data-board-panel)
     slot(name="widgets" :start="start")
       .widget-panel
-        .widget
+        .widget(
+          v-for="(widget, key) in options.components"
+          :key="'widget-' + index"
+          @mousedown="start(key, $event)"
+        )
 
   .drug-and-drop-board__area(data-board-area)
     .drug-and-drop-board__box(
@@ -27,11 +31,6 @@
 import { defineAsyncComponent, defineComponent } from "vue";
 import { Board, BoardItem, BoardOptions } from "@/assets/ts/board.classes.ts";
 
-interface Size {
-  col: number;
-  row: number;
-}
-
 export default defineComponent({
   props: {
     options: {
@@ -39,10 +38,7 @@ export default defineComponent({
       default: () => ({
         state: {},
         components: {},
-        size: {
-          col: 4,
-          row: 3,
-        },
+        size: { col: 4, row: 3 },
       }),
     },
   },

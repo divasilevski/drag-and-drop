@@ -28,18 +28,10 @@ export default defineComponent({
     const state = JSON.parse(localStorage.getItem("bordItems") || "{}");
     const options = {
       components: {
-        DrugBox: {
-          size: { col: 1, row: 1 },
-        },
-        DrugBox2: {
-          size: { col: 1, row: 2 },
-        },
-        DrugBox3: {
-          size: { col: 2, row: 1 },
-        },
-        DrugBox4: {
-          size: { col: 2, row: 2 },
-        },
+        DrugBox: { size: { col: 1, row: 1 } },
+        DrugBox2: { size: { col: 1, row: 2 } },
+        DrugBox3: { size: { col: 2, row: 1 } },
+        DrugBox4: { size: { col: 2, row: 2 } },
       },
       size: {
         col: 6,
