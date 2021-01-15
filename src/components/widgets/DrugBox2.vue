@@ -1,17 +1,17 @@
 <template lang="pug">
-.drug-box(@click="number++")
-  .text( v-text="number")
+.drug-box
+  .text {{ number }}
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 export default defineComponent({
   data: () => ({
-    number: 0,
+    number: new Date().toLocaleTimeString("ru-RU", { hour12: false }),
   }),
   created() {
     setInterval(() => {
-      this.number++;
+      this.number = new Date().toLocaleTimeString("ru-RU", { hour12: false });
     }, 1000);
   },
 });
@@ -24,13 +24,12 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: move;
   padding: 10px;
 
   .text {
     width: 100%;
     height: 100%;
-    background: teal;
+    background: green;
     border-radius: 10px;
 
     display: flex;

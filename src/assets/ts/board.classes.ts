@@ -68,6 +68,8 @@ export class BoardItem {
 
         if (this.pos) {
           this.board.changeTable(this.pos, this.size, null);
+          this.pos = null;
+          this.move(event);
         }
 
         document.onmousemove = this.move.bind(this);
@@ -154,6 +156,7 @@ export class Board {
     this.$root = root;
     this.$pattern = pattern;
     this.$panel = panel;
+    this.$pattern.style.position = "absolute";
     this.hidePattern();
     this.listeners = {};
 
@@ -224,7 +227,6 @@ export class Board {
 
   hidePattern() {
     this.$pattern.style.display = "none";
-    this.$panel.style.borderColor = "white";
   }
 
   // table
@@ -276,19 +278,33 @@ export class Board {
     return position;
   }
 
+  // panel
   isBasket(x: number, y: number): boolean {
+    const p = this.$panel;
     if (
-      x > this.$panel.offsetLeft &&
-      y > this.$panel.offsetTop &&
-      x < this.$panel.offsetLeft + this.$panel.offsetWidth &&
-      y < this.$panel.offsetTop + this.$panel.offsetHeight
+      x > p.offsetLeft &&
+      y > p.offsetTop &&
+      x < p.offsetLeft + p.offsetWidth &&
+      y < p.offsetTop + p.offsetHeight
     ) {
-      this.$pattern.style.display = "none";
-      this.$panel.style.borderColor = "black";
+      this.$pattern.style.display = "block";
+      this.$pattern.style.width = p.offsetWidth + "px";
+      this.$pattern.style.height = p.offsetHeight + "px";
+      this.$pattern.style.top = p.offsetTop - this.$root.offsetTop + "px";
+      this.$pattern.style.left = p.offsetLeft - this.$root.offsetLeft + "px";
       return true;
     }
-    this.$panel.style.borderColor = "white";
     return false;
+  }
+
+  lock() {
+    this.$panel.style.opacity = "0";
+    this.$panel.style.pointerEvents = "none";
+  }
+
+  unlock() {
+    this.$panel.style.opacity = "1";
+    this.$panel.style.pointerEvents = "auto";
   }
 
   // Observer pattern

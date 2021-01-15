@@ -24,13 +24,12 @@ export default defineComponent({
   display: flex;
   justify-content: center;
   align-items: center;
-  cursor: move;
   padding: 10px;
 
   .text {
     width: 100%;
     height: 100%;
-    background: green;
+    background: rgb(231, 133, 62);
     border-radius: 10px;
 
     display: flex;
