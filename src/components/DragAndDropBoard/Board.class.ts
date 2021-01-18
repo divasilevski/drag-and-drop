@@ -45,7 +45,7 @@ export class Board {
     this.items[instanceName + id] = boardItem;
 
     setTimeout(() => {
-      const selector = `[data-id="${key}"]`;
+      const selector = `[data-board-key="${key}"]`;
       const $el = this.$root.querySelector(selector) as HTMLElement;
       boardItem.addElement($el, event);
     }, 0);
@@ -80,6 +80,7 @@ export class Board {
   }
 
   removeItem(key: string) {
+    this.emit("remove", key);
     delete this.items[key];
   }
 

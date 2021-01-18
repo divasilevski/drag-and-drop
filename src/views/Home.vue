@@ -2,13 +2,15 @@
 div 
   .board-container
     .board-wrapper
-      DragAndDropBoard(:options="options" @change="saveBoard")
+      DragAndDropBoard(:options="options" @change="saveBoard" @remove="removeItem")
         template(#widgets="{start}")
           .widget-panel
             .widget(@mousedown="start('DrugBox1', $event)" style="background: thistle;")
             .widget(@mousedown="start('DrugBox2', $event)" style="background: green;")
             .widget(@mousedown="start('DrugBox3', $event)" style="background: teal;")
             .widget(@mousedown="start('DrugBox4', $event)" style="background: rgb(231, 133, 62);")
+            
+            .widget(@mousedown="start('Note', $event)" style="background: #f7efac;")
         
         template(#lock="{lock, isLock}")
           .lock(@click="lock") {{ isLock ? 'Unlock' : 'Lock' }}
@@ -18,6 +20,8 @@ div
           DrugBox2(name="DrugBox2" size="1:2")
           DrugBox3(name="DrugBox3" size="2:1")
           DrugBox4(name="DrugBox4" size="2:2")
+          
+          Note(name="Note" size="2:2")
 
 </template>
 
@@ -29,6 +33,8 @@ import DrugBox from "@/components/widgets/DrugBox.vue";
 import DrugBox2 from "@/components/widgets/DrugBox2.vue";
 import DrugBox3 from "@/components/widgets/DrugBox3.vue";
 import DrugBox4 from "@/components/widgets/DrugBox4.vue";
+import Note from "@/components/widgets/Note.vue";
+import { removeContent } from "@/components/widgets/saveContent.setup";
 
 export default defineComponent({
   name: "Home",
@@ -39,6 +45,7 @@ export default defineComponent({
     DrugBox2,
     DrugBox3,
     DrugBox4,
+    Note,
   },
   setup() {
     const state = JSON.parse(localStorage.getItem("bordItems") || "{}");
@@ -51,7 +58,7 @@ export default defineComponent({
       localStorage.setItem("bordItems", JSON.stringify(items));
     };
 
-    return { options, saveBoard };
+    return { options, saveBoard, removeItem: removeContent };
   },
 });
 </script>

@@ -13,7 +13,7 @@
     .drug-and-drop-board__box(
       v-for="(item, key) in board.items" :key="key"
       @mousedown="start(item, $event)"
-      :data-id="item.key"
+      :data-board-key="item.key"
     )
       ItemRender(:slot="findSlot(item.instance)" :class="{'cursor-move': !isLock}")
 
@@ -53,7 +53,7 @@ export default defineComponent({
   data: () => ({
     board: {} as Board,
     grugItem: {} as any,
-    eventListenerX: null as any,
+    events: [] as any[],
     isLock: true,
     panel: null,
   }),
@@ -67,9 +67,15 @@ export default defineComponent({
 
     this.board.lock();
 
-    this.eventListenerX = this.board.subscribe("change", (items: any) => {
+    const changeListener = this.board.subscribe("change", (items: any) => {
       this.$emit("change", items);
     });
+
+    const removeListener = this.board.subscribe("remove", (itemKey: any) => {
+      this.$emit("remove", itemKey);
+    });
+
+    this.events.push(changeListener, removeListener);
   },
   methods: {
     start(widget: any, event: any) {
@@ -115,7 +121,7 @@ export default defineComponent({
     },
   },
   beforeUnmount() {
-    this.eventListenerX.unsubscribe();
+    this.events.forEach((event: any) => event.unsubscribe());
   },
 });
 </script>
