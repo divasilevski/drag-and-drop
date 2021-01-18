@@ -28,8 +28,10 @@
 </template>
 
 <script lang="ts">
+import { Board } from "./Board.class";
 import { defineAsyncComponent, defineComponent } from "vue";
-import { Board, BoardItem, BoardOptions } from "@/assets/ts/board.classes.ts";
+import { BoardOptions } from "./board.interfaces";
+import { BoardItem } from "./BoardItem.class";
 
 export default defineComponent({
   props: {

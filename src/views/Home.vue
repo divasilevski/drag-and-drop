@@ -17,7 +17,7 @@ div
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import DragAndDropBoard from "@/components/DragAndDropBoard.vue";
+import DragAndDropBoard from "@/components/DragAndDropBoard/index.vue";
 
 export default defineComponent({
   name: "Home",
@@ -58,6 +58,7 @@ export default defineComponent({
   margin-top: 50px;
 
   .board-wrapper {
+    position: relative;
     width: 800px;
     height: 700px;
 
