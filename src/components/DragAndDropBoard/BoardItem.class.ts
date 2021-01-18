@@ -44,6 +44,7 @@ export class BoardItem {
 
   // events
   startMove(event: MouseEvent) {
+    event.preventDefault();
     setTimeout(() => {
       if (this.$el) {
         this.$el.style.zIndex = "71";
@@ -63,6 +64,7 @@ export class BoardItem {
   }
 
   move(event: MouseEvent) {
+    event.preventDefault();
     if (this.$el) {
       const delta = this.calculateDelta(event);
       const position = this.board.calculatePosition(event, this);
@@ -75,6 +77,7 @@ export class BoardItem {
   }
 
   endMove(event: MouseEvent) {
+    event.preventDefault();
     if (this.$el && this.pos && !isNaN(this.pos.x)) {
       this.stick();
       this.$el.style.zIndex = "70";

@@ -11,6 +11,7 @@ div
             .widget(@mousedown="start('DrugBox4', $event)" style="background: rgb(231, 133, 62);")
             
             .widget(@mousedown="start('Note', $event)" style="background: #f7efac;")
+            .widget(@mousedown="start('Clock', $event)" style="background: #d4daae;")
         
         template(#lock="{lock, isLock}")
           .lock(@click="lock") {{ isLock ? 'Unlock' : 'Lock' }}
@@ -22,6 +23,7 @@ div
           DrugBox4(name="DrugBox4" size="2:2")
           
           Note(name="Note" size="2:2")
+          Clock(name="Clock" size="2:1")
 
 </template>
 
@@ -33,7 +35,11 @@ import DrugBox from "@/components/widgets/DrugBox.vue";
 import DrugBox2 from "@/components/widgets/DrugBox2.vue";
 import DrugBox3 from "@/components/widgets/DrugBox3.vue";
 import DrugBox4 from "@/components/widgets/DrugBox4.vue";
+
+// Widgets
 import Note from "@/components/widgets/Note.vue";
+import Clock from "@/components/widgets/Clock.vue";
+
 import { removeContent } from "@/components/widgets/saveContent.setup";
 
 export default defineComponent({
@@ -45,7 +51,9 @@ export default defineComponent({
     DrugBox2,
     DrugBox3,
     DrugBox4,
+
     Note,
+    Clock,
   },
   setup() {
     const state = JSON.parse(localStorage.getItem("bordItems") || "{}");
