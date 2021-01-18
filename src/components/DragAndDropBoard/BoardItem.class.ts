@@ -3,6 +3,7 @@ import { Position, Size } from "./board.interfaces";
 
 export class BoardItem {
   public instance: string;
+  public slot: any;
   public size: Size;
   public pos: null | Position = null;
   public start: { dx: number; dy: number } = { dx: 0, dy: 0 };
@@ -17,6 +18,7 @@ export class BoardItem {
     this.key = key;
     this.pos = options.pos || null;
     this.instance = options.instance;
+    this.slot = options.slot;
     this.size = options.size;
     this.board = board;
   }

@@ -5,7 +5,7 @@ div
       DragAndDropBoard(:options="options" @change="saveBoard")
         template(#widgets="{start}")
           .widget-panel
-            .widget(@mousedown="start('DrugBox', $event)"  style="background: thistle;")
+            .widget(@mousedown="start('DrugBox1', $event)" style="background: thistle;")
             .widget(@mousedown="start('DrugBox2', $event)" style="background: green;")
             .widget(@mousedown="start('DrugBox3', $event)" style="background: teal;")
             .widget(@mousedown="start('DrugBox4', $event)" style="background: rgb(231, 133, 62);")
@@ -13,30 +13,37 @@ div
         template(#lock="{lock, isLock}")
           .lock(@click="lock") {{ isLock ? 'Unlock' : 'Lock' }}
 
+        template(#default)
+          DrugBox1(name="DrugBox1" size="1:1")
+          DrugBox2(name="DrugBox2" size="1:2")
+          DrugBox3(name="DrugBox3" size="2:1")
+          DrugBox4(name="DrugBox4" size="2:2")
+
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 import DragAndDropBoard from "@/components/DragAndDropBoard/index.vue";
 
+import DrugBox from "@/components/widgets/DrugBox.vue";
+import DrugBox2 from "@/components/widgets/DrugBox2.vue";
+import DrugBox3 from "@/components/widgets/DrugBox3.vue";
+import DrugBox4 from "@/components/widgets/DrugBox4.vue";
+
 export default defineComponent({
   name: "Home",
   components: {
     DragAndDropBoard,
+
+    DrugBox1: DrugBox,
+    DrugBox2,
+    DrugBox3,
+    DrugBox4,
   },
   setup() {
     const state = JSON.parse(localStorage.getItem("bordItems") || "{}");
     const options = {
-      components: {
-        DrugBox: { size: { col: 1, row: 1 } },
-        DrugBox2: { size: { col: 1, row: 2 } },
-        DrugBox3: { size: { col: 2, row: 1 } },
-        DrugBox4: { size: { col: 2, row: 2 } },
-      },
-      size: {
-        col: 6,
-        row: 5,
-      },
+      size: { col: 6, row: 5 },
       state,
     };
 

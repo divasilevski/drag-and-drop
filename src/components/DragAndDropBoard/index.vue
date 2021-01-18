@@ -15,7 +15,7 @@
       @mousedown="start(item, $event)"
       :data-id="item.key"
     )
-      component(:is="item.instance" :class="{'cursor-move': !isLock}")
+      ItemRender(:slot="findSlot(item.instance)" :class="{'cursor-move': !isLock}")
 
     .drug-and-drop-board__selection(data-board-selection)
       slot(name="selection")
@@ -29,11 +29,17 @@
 
 <script lang="ts">
 import { Board } from "./Board.class";
-import { defineAsyncComponent, defineComponent } from "vue";
+import { defineAsyncComponent, defineComponent, h, warn } from "vue";
 import { BoardOptions } from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
 
 export default defineComponent({
+  components: {
+    ItemRender: ({ slot }) => {
+      // console.log(slot);
+      return h("div", {}, [slot]);
+    },
+  },
   props: {
     options: {
       type: Object,
@@ -51,12 +57,6 @@ export default defineComponent({
     isLock: true,
     panel: null,
   }),
-  created() {
-    const keys = Object.keys(this.options.components);
-    keys.forEach((key: string) => {
-      this.options.components[key].instance = key;
-    });
-  },
   mounted() {
     this.board = new Board(
       this.options as BoardOptions,
@@ -75,8 +75,22 @@ export default defineComponent({
     start(widget: any, event: any) {
       if (this.isLock) return;
       if (!(widget instanceof BoardItem)) {
-        const optios = this.options.components[widget];
-        this.grugItem = this.board.addItem(widget, optios, event);
+        const slot = this.findSlot(widget);
+
+        console.log(slot);
+
+        if (slot) {
+          const size = slot.props.size.split(":");
+
+          const options = {
+            size: {
+              col: +size[0],
+              row: +size[1],
+            },
+            instance: widget,
+          };
+          this.grugItem = this.board.addItem(widget, options, event);
+        }
       } else {
         this.grugItem = widget;
       }
@@ -88,6 +102,15 @@ export default defineComponent({
         this.board.lock();
       } else {
         this.board.unlock();
+      }
+    },
+    findSlot(key: string) {
+      const slots = (this.$slots as any).default();
+      const findedSlot = slots.find((el: any) => el.props.name === key);
+      if (findedSlot) {
+        return findedSlot;
+      } else {
+        return Error("slot not find");
       }
     },
   },
@@ -114,6 +137,11 @@ export default defineComponent({
   .drug-and-drop-board__box {
     position: absolute;
     opacity: 0;
+  }
+
+  .drug-and-drop-board__box > div {
+    width: 100%;
+    height: 100%;
   }
 }
 
