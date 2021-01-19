@@ -130,6 +130,7 @@ export default defineComponent({
 
       font-size: 16px;
       bottom: 0px;
+      width: 0%;
       transition: 0.4s;
       letter-spacing: -5px;
       font-weight: bold;

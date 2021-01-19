@@ -1,6 +1,16 @@
 <template>
-  <router-view/>
+  <router-view />
 </template>
+
+<script>
+const VERSION = "0.1.0";
+const version = localStorage.getItem("version");
+
+if (version !== VERSION) {
+  localStorage.clear();
+  localStorage.setItem("version", VERSION);
+}
+</script>
 
 <style lang="scss">
 #app {

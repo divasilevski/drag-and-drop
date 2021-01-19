@@ -17,7 +17,7 @@ export default defineComponent({
 
     if (!content.value) {
       const r = randInt(300, 1000);
-      content.value = `http://placekitten.com/${r}/${r}`;
+      content.value = `https://placekitten.com/${r}/${r}`;
     }
 
     return { content };

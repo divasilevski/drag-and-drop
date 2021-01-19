@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { Board } from "./Board.class";
-import { defineAsyncComponent, defineComponent, h, warn } from "vue";
+import { computed, defineAsyncComponent, defineComponent, h, warn } from "vue";
 import { BoardOptions } from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
 
@@ -48,7 +48,6 @@ export default defineComponent({
       type: Object,
       default: () => ({
         state: {},
-        components: {},
         size: { col: 4, row: 3 },
       }),
     },
@@ -85,8 +84,6 @@ export default defineComponent({
       if (this.isLock) return;
       if (!(widget instanceof BoardItem)) {
         const slot = this.findSlot(widget);
-
-        console.log(slot);
 
         if (slot) {
           const size = slot.props.size.split(":");
