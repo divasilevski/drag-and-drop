@@ -58,7 +58,10 @@ export class Board {
       const keys = Object.keys(state);
       if (keys.length) {
         keys.forEach((key: string) => {
-          this.addItem(state[key].instance, state[key]);
+          const exec = /\d+$/.exec(key);
+          if (!exec) return;
+          const id = +exec[0];
+          this.addItem(state[key].instance, state[key], null, id);
         });
       }
     } catch (e) {

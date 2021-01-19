@@ -5,11 +5,7 @@ div
       DragAndDropBoard(:options="options" @save="saveBoard" @remove="removeItem")
         template(#widgets="{start}")
           .widget-panel
-            .widget(@mousedown="start('DrugBox1', $event)" style="background: thistle;")
-            .widget(@mousedown="start('DrugBox2', $event)" style="background: green;")
-            .widget(@mousedown="start('DrugBox3', $event)" style="background: teal;")
-            .widget(@mousedown="start('DrugBox4', $event)" style="background: rgb(231, 133, 62);")
-            
+            .widget(@mousedown="start('Cat', $event)" style="background: #efdfd2;")
             .widget(@mousedown="start('Note', $event)" style="background: #f7efac;")
             .widget(@mousedown="start('Clock', $event)" style="background: #d4daae;")
             .widget(@mousedown="start('ProgressCheck', $event)" style="background: #bddfe9;")
@@ -18,11 +14,7 @@ div
           .lock(@click="lock") {{ isLock ? 'Unlock' : 'Lock' }}
 
         template(#default)
-          DrugBox1(name="DrugBox1" size="1:1")
-          DrugBox2(name="DrugBox2" size="1:2")
-          DrugBox3(name="DrugBox3" size="2:1")
-          DrugBox4(name="DrugBox4" size="2:2")
-          
+          Cat(name="Cat" size="2:2")
           Note(name="Note" size="2:2")
           Clock(name="Clock" size="2:1")
           ProgressCheck(name="ProgressCheck" size="2:3")
@@ -33,12 +25,8 @@ div
 import { defineComponent } from "vue";
 import DragAndDropBoard from "@/components/DragAndDropBoard/index.vue";
 
-import DrugBox from "@/components/widgets/DrugBox.vue";
-import DrugBox2 from "@/components/widgets/DrugBox2.vue";
-import DrugBox3 from "@/components/widgets/DrugBox3.vue";
-import DrugBox4 from "@/components/widgets/DrugBox4.vue";
-
 // Widgets
+import Cat from "@/components/widgets/Cat.vue";
 import Note from "@/components/widgets/Note.vue";
 import Clock from "@/components/widgets/Clock.vue";
 import ProgressCheck from "@/components/widgets/ProgressCheck.vue";
@@ -50,11 +38,7 @@ export default defineComponent({
   components: {
     DragAndDropBoard,
 
-    DrugBox1: DrugBox,
-    DrugBox2,
-    DrugBox3,
-    DrugBox4,
-
+    Cat,
     Note,
     Clock,
     ProgressCheck,
