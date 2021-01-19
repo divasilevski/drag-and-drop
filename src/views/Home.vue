@@ -2,7 +2,7 @@
 div 
   .board-container
     .board-wrapper
-      DragAndDropBoard(:options="options" @change="saveBoard" @remove="removeItem")
+      DragAndDropBoard(:options="options" @save="saveBoard" @remove="removeItem")
         template(#widgets="{start}")
           .widget-panel
             .widget(@mousedown="start('DrugBox1', $event)" style="background: thistle;")
@@ -12,6 +12,7 @@ div
             
             .widget(@mousedown="start('Note', $event)" style="background: #f7efac;")
             .widget(@mousedown="start('Clock', $event)" style="background: #d4daae;")
+            .widget(@mousedown="start('ProgressCheck', $event)" style="background: #bddfe9;")
         
         template(#lock="{lock, isLock}")
           .lock(@click="lock") {{ isLock ? 'Unlock' : 'Lock' }}
@@ -24,6 +25,7 @@ div
           
           Note(name="Note" size="2:2")
           Clock(name="Clock" size="2:1")
+          ProgressCheck(name="ProgressCheck" size="2:3")
 
 </template>
 
@@ -39,6 +41,7 @@ import DrugBox4 from "@/components/widgets/DrugBox4.vue";
 // Widgets
 import Note from "@/components/widgets/Note.vue";
 import Clock from "@/components/widgets/Clock.vue";
+import ProgressCheck from "@/components/widgets/ProgressCheck.vue";
 
 import { removeContent } from "@/components/widgets/saveContent.setup";
 
@@ -54,6 +57,7 @@ export default defineComponent({
 
     Note,
     Clock,
+    ProgressCheck,
   },
   setup() {
     const state = JSON.parse(localStorage.getItem("bordItems") || "{}");

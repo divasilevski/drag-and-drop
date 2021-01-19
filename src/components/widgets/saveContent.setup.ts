@@ -8,11 +8,13 @@ export function saveContent(key: string | undefined) {
     content.value = storage ? JSON.parse(storage) : "";
   }
 
-  watch(content, (value, prevValue) => {
+  function sendToStorage(value: any, prevValue: any) {
     if (key !== undefined && prevValue !== undefined) {
       localStorage.setItem(key, JSON.stringify(value));
     }
-  });
+  }
+
+  watch(content, sendToStorage, { deep: true });
 
   return content;
 }

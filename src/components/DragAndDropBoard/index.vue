@@ -40,7 +40,7 @@ import { BoardItem } from "./BoardItem.class";
 export default defineComponent({
   components: {
     ItemRender: ({ slot, itemKey }) => {
-      return h(slot, { itemKey });
+      return h("div", {}, h(slot, { itemKey }));
     },
   },
   props: {
@@ -70,8 +70,8 @@ export default defineComponent({
 
     this.board.lock();
 
-    const changeListener = this.board.subscribe("change", (items: any) => {
-      this.$emit("change", items);
+    const changeListener = this.board.subscribe("save", (items: any) => {
+      this.$emit("save", items);
     });
 
     const removeListener = this.board.subscribe("remove", (itemKey: any) => {
@@ -149,6 +149,10 @@ export default defineComponent({
     position: absolute;
     opacity: 0;
   }
+
+  .drug-and-drop-board__box > div {
+    display: inline;
+  }
 }
 
 .widget-panel {
@@ -194,5 +198,9 @@ export default defineComponent({
 }
 .cursor-move {
   cursor: move;
+}
+
+.cursor-move > div {
+  pointer-events: none;
 }
 </style>

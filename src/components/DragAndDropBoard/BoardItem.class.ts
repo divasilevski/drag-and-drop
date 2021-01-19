@@ -89,7 +89,7 @@ export class BoardItem {
     document.onmousemove = null;
     document.onmouseup = null;
 
-    this.board.emit("change", this.board.getItems());
+    this.board.emit("save", this.board.getItems());
   }
 
   // utils
