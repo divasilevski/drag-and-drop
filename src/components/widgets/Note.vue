@@ -18,9 +18,9 @@ import { computed, defineComponent, ref } from "vue";
 import { saveContent } from "./saveContent.setup";
 
 export default defineComponent({
-  setup() {
+  setup(_, { attrs }) {
     const focus = ref(false);
-    const content = saveContent();
+    const content = saveContent(attrs.itemKey as string | undefined);
     const placeholder = computed(() => {
       const cv = content.value;
       return !focus.value && (cv === "<div><br></div>" || cv === "<br>" || !cv);

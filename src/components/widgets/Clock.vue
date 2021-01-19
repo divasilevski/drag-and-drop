@@ -6,15 +6,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
+import { getCurrentDate } from "./widgets.helpers";
+
 export default defineComponent({
-  data: () => ({
-    number: new Date().toLocaleTimeString("ru-RU", { hour12: false }),
-  }),
-  created() {
-    setInterval(() => {
-      this.number = new Date().toLocaleTimeString("ru-RU", { hour12: false });
-    }, 1000);
+  setup() {
+    const number = ref(getCurrentDate());
+    setInterval(() => (number.value = getCurrentDate()), 1000);
+    return { number };
   },
 });
 </script>

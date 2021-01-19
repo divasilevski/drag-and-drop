@@ -15,7 +15,11 @@
       @mousedown="start(item, $event)"
       :data-board-key="item.key"
     )
-      ItemRender(:slot="findSlot(item.instance)" :class="{'cursor-move': !isLock}")
+      ItemRender(
+        :slot="findSlot(item.instance)"
+        :itemKey="item.key"
+        :class="{'cursor-move': !isLock}"
+      )
 
     .drug-and-drop-board__selection(data-board-selection)
       slot(name="selection")
@@ -35,9 +39,8 @@ import { BoardItem } from "./BoardItem.class";
 
 export default defineComponent({
   components: {
-    ItemRender: ({ slot }) => {
-      // console.log(slot);
-      return h("div", {}, [slot]);
+    ItemRender: ({ slot, itemKey }) => {
+      return h(slot, { itemKey });
     },
   },
   props: {
@@ -141,13 +144,10 @@ export default defineComponent({
   }
 
   .drug-and-drop-board__box {
-    position: absolute;
-    opacity: 0;
-  }
-
-  .drug-and-drop-board__box > div {
     width: 100%;
     height: 100%;
+    position: absolute;
+    opacity: 0;
   }
 }
 
