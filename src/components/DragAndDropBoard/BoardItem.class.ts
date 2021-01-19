@@ -7,8 +7,8 @@ export class BoardItem {
   public size: Size;
   public pos: null | Position = null;
   public start: { dx: number; dy: number } = { dx: 0, dy: 0 };
+  public key: string;
 
-  private key: string;
   private board: Board;
   private $el?: HTMLElement;
   private mouse?: Position;
@@ -79,8 +79,8 @@ export class BoardItem {
   endMove(event: MouseEvent) {
     event.preventDefault();
     if (this.$el && this.pos && !isNaN(this.pos.x)) {
-      this.stick();
-      this.$el.style.zIndex = "70";
+      // this.stick();
+      this.shiftTo(this.pos);
       this.mouse = undefined;
     } else {
       this.board.removeItem(this.key);
@@ -90,6 +90,20 @@ export class BoardItem {
     document.onmouseup = null;
 
     this.board.emit("save", this.board.getItems());
+  }
+
+  shiftTo(pos: Position) {
+    if (this.$el) {
+      this.$el.style.transition = "0.2s";
+      this.pos = pos;
+      this.stick();
+      setTimeout(() => {
+        if (this.$el) {
+          this.$el.style.transition = "none";
+          this.$el.style.zIndex = "70";
+        }
+      }, 200);
+    }
   }
 
   // utils

@@ -121,7 +121,7 @@ export class Board {
   }
 
   // Calculation
-  calculatePosition(e: MouseEvent, { pos, size, start }: BoardItem) {
+  calculatePosition(e: MouseEvent, { key, pos, size, start }: BoardItem) {
     if (this.isBasket(e.pageX, e.pageY)) {
       return { x: NaN, y: NaN };
     }
@@ -143,11 +143,40 @@ export class Board {
     };
 
     if (comparePositions(position, pos)) return null;
-    if (this.hasTableKeys(position, size)) return null;
+    if (this.hasTableKeys(position, size)) {
+      if (!this.canPush(key, position)) return null;
+      return null;
+    }
 
     this.showPattern(size, position);
 
     return position;
+  }
+
+  canPush(itemKey: string, pos: Position) {
+    const key = this.table[pos.y][pos.x];
+    if (!key) return;
+
+    const first = this.items[itemKey];
+    const second = this.items[key];
+
+    const push = (newPos: Position) => {
+      this.changeTable(second.pos!, second.size, null);
+      if (!this.hasTableKeys(newPos, second.size)) {
+        console.log("вниз");
+        second.shiftTo(newPos);
+        return true;
+      } else {
+        this.changeTable(second.pos!, second.size, second.key);
+      }
+    };
+
+    push({ x: pos.x, y: pos.y + first.size.row });
+    push({ x: pos.x, y: pos.y - first.size.row });
+    push({ x: pos.x - first.size.col, y: pos.y });
+    push({ x: pos.x + first.size.col, y: pos.y });
+
+    return false;
   }
 
   // panel
