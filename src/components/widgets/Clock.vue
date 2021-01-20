@@ -46,7 +46,7 @@ export default defineComponent({
 
     .clock-widget__placeholder {
       position: absolute;
-      opacity: 0.2;
+      opacity: 0.1;
     }
   }
 

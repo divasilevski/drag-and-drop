@@ -48,7 +48,7 @@ export class BoardItem {
     event.preventDefault();
     setTimeout(() => {
       if (this.$el) {
-        this.$el.style.zIndex = "71";
+        this.$el.style.zIndex = "72";
 
         this.calculateStart(event);
 
@@ -96,6 +96,7 @@ export class BoardItem {
 
   shiftTo(pos: Position) {
     if (this.$el) {
+      this.$el.style.zIndex = "71";
       this.$el.style.transition = "0.2s";
       this.pos = pos;
       this.stick();
