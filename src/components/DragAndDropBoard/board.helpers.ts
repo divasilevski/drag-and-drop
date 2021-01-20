@@ -18,3 +18,11 @@ export function createMatrix(size: Size, value: any): any[][] {
   }
   return matrix;
 }
+
+export function indexOfSmallest(a: number[]) {
+  var lowest = 0;
+  for (var i = 1; i < a.length; i++) {
+    if (a[i] < a[lowest]) lowest = i;
+  }
+  return lowest;
+}

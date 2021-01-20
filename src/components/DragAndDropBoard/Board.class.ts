@@ -1,4 +1,8 @@
-import { comparePositions, createMatrix } from "./board.helpers";
+import {
+  comparePositions,
+  createMatrix,
+  indexOfSmallest,
+} from "./board.helpers";
 import { Size, BoardItems, BoardOptions, Position } from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
 
@@ -11,6 +15,7 @@ export class Board {
   private table: Array<Array<null | string>>; // null - если ячейка свободна, 'key' - ключ для заполненной ячейки
   private $panel: HTMLElement;
   private listeners: { [key: string]: Function[] };
+  private prevCalculation: Position | null = null;
 
   constructor(
     options: BoardOptions,
@@ -112,8 +117,8 @@ export class Board {
   hasTableKeys(p: Position, size: Size): Boolean {
     for (let i = 0; i < size.row; i++) {
       for (let j = 0; j < size.col; j++) {
-        if (this.table[p.y + i] === undefined) return true;
-        if (this.table[p.y + i][p.x + j] === undefined) return true;
+        // if (this.table[p.y + i] === undefined) return true;
+        // if (this.table[p.y + i][p.x + j] === undefined) return true;
         if (this.table[p.y + i][p.x + j]) return true;
       }
     }
@@ -145,9 +150,20 @@ export class Board {
     };
 
     if (comparePositions(position, pos)) return null;
+
+    if (this.prevCalculation) {
+      if (comparePositions(position, this.prevCalculation)) return null;
+      else this.prevCalculation = position;
+    } else {
+      this.prevCalculation = position;
+    }
+
     if (this.hasTableKeys(position, size)) {
-      this.tryPush(key, position);
-      return null;
+      try {
+        this.tryPush(key, position);
+      } catch (e) {
+        return null;
+      }
     }
 
     this.showPattern(size, position);
@@ -157,153 +173,70 @@ export class Board {
 
   tryPush(itemKey: string, pos: Position) {
     const current = this.items[itemKey];
+    const table = JSON.parse(JSON.stringify(this.table));
 
-    // координаты которые нужно освободить '{ KEY' : [coords], ...}
-    const keys: any = {};
+    // 1 Получаем ключи
+    const keys: any = new Set();
     for (let i = 0; i < current.size.row; i++) {
       for (let j = 0; j < current.size.col; j++) {
         const key = this.table[i + pos.y][j + pos.x];
-        const coords = { x: j + pos.x, y: i + pos.y };
-        if (key) keys[key] = [...(keys[key] || []), coords];
+        if (key) keys.add(key);
       }
     }
 
-    const push = (newPos: Position, second: BoardItem) => {
-      this.changeTable(second.pos!, second.size, null);
-      if (!this.hasTableKeys(newPos, second.size)) {
-        console.log("вниз");
-        second.shiftTo(newPos);
-        return true;
-      } else {
-        this.changeTable(second.pos!, second.size, second.key);
-      }
-    };
+    // 2 Формируем виджеты и сортируем по размеру
+    const widgets = [...keys]
+      .map((key: string) => this.items[key])
+      .sort((a, b) => b.size.row * b.size.col - a.size.row * a.size.col);
 
-    // Проходимся по ключам виджетов
-    Object.keys(keys).forEach((key: string) => {
-      const widget = this.items[key];
-      if (
-        widget.size.col * widget.size.row === keys[key].length &&
-        current.size.col * current.size.row === keys[key].length
-      ) {
-        push(current.pos!, widget);
-      } else {
-        const widgetCenter = {
-          x: widget.pos!.x + widget.size.col / 2,
-          y: widget.pos!.y + widget.size.row / 2,
-        };
-        const currentCenter = {
-          x: pos.x + current.size.col / 2,
-          y: pos.y + current.size.row / 2,
-        };
-
-        const delta = [
-          widgetCenter.x - currentCenter.x,
-          widgetCenter.y - currentCenter.y,
-        ];
-
-        // зная дельту мы вычисляем приоритетное направление
-        // и кол-во клеток на которое нужно сдвинуть элемент
-
-        function pushLeft(x: number) {
-          const p = {
-            x: widget.pos!.x + x,
-            y: widget.pos!.y,
-          };
-          if (push(p, widget)) return true;
-          return false;
-        }
-        function pushRight(x: number) {
-          const p = {
-            x: widget.pos!.x + x,
-            y: widget.pos!.y,
-          };
-          if (push(p, widget)) return true;
-          return false;
-        }
-        function pushTop(y: number) {
-          const p = {
-            x: widget.pos!.x,
-            y: widget.pos!.y + y,
-          };
-          console.log(123);
-          if (push(p, widget)) return true;
-          return false;
-        }
-        function pushBot(y: number) {
-          const p = {
-            x: widget.pos!.x,
-            y: widget.pos!.y + y,
-          };
-          console.log(y);
-          if (push(p, widget)) return true;
-          return false;
-        }
-
-        function pushX() {
-          if (delta[0] > 0) {
-            if (pushLeft(delta[0] * 2)) return;
-            if (pushRight(delta[0] * 2 + current.size.col)) return;
-          } else {
-            if (pushRight(delta[0] * 2)) return;
-            if (pushLeft(delta[0] * 2 + current.size.col)) return;
-          }
-        }
-        function pushY() {
-          if (delta[1] > 0) {
-            if (pushTop(delta[1] * 2)) return;
-            if (pushBot(delta[1] * 2 + current.size.row)) return;
-          } else {
-            if (pushBot(delta[1] * 2)) return;
-            if (pushTop(delta[1] * 2 + current.size.row)) return;
-          }
-        }
-
-        if (Math.abs(delta[0]) > Math.abs(delta[1])) {
-          if (delta[0] > 0) {
-            if (pushLeft(delta[0] * 2)) return;
-            if (pushRight(delta[0] * 2 + current.size.col)) return;
-            pushY();
-          } else {
-            if (pushRight(delta[0] * 2)) return;
-            if (pushLeft(delta[0] * 2 + current.size.col)) return;
-            pushY();
-          }
-        } else {
-          if (delta[1] > 0) {
-            if (pushTop(delta[1] * 2)) return;
-            if (pushBot(delta[1] * 2 + current.size.row)) return;
-            pushX();
-          } else {
-            if (pushBot(delta[1] * 2)) return;
-            if (pushTop(delta[1] * 2 + current.size.row)) return;
-            pushX();
-          }
-        }
-      }
+    // 3 Открепление от сетки сформированных виджетов
+    widgets.forEach((item: BoardItem) => {
+      // console.log(item.pos);
+      this.changeTable(item.pos!, item.size, null);
     });
 
-    // console.log(current.pos);
-    this.showPattern(current.size, pos);
+    // 4 Добавление на сетку текущего виджета
+    this.changeTable(pos, current.size, current.key);
 
-    const side = {
-      l: -1,
-      r: 1,
-      t: -1,
-      b: 1,
-    };
+    const forShift: any[] = [];
+    widgets.forEach((item: BoardItem) => {
+      // 5 Поиск свободных мест последовательно
+      const places = [];
+      for (let y = 0; y <= this.size.row - item.size.row; y++) {
+        for (let x = 0; x <= this.size.col - item.size.col; x++) {
+          if (!this.hasTableKeys({ x, y }, item.size)) places.push({ x, y });
+        }
+      }
+      if (!places.length) {
+        this.table = table;
+        console.warn("Нет места");
+        throw new Error("Нет места");
+      }
 
-    // const key = this.table[pos.y][pos.x];
-    // if (!key) return;
+      // 6 Поиск ближайшего свободного
+      const distances = places.map((p: Position) => {
+        const cPlace = [p.x + item.size.col / 2, p.y + item.size.row / 2];
+        const cItem = [
+          item.pos!.x + item.size.col / 2,
+          item.pos!.y + item.size.row / 2,
+        ];
+        const d0 = cItem[0] - cPlace[0];
+        const d1 = cItem[1] - cPlace[1];
+        return Math.sqrt(d0 * d0 + d1 * d1);
+      });
 
-    // const second = this.items[key];
+      const place = places[indexOfSmallest(distances)];
+      forShift.push({ item, place });
+      this.changeTable(place, item.size, item.key);
+    });
 
-    // push({ x: pos.x, y: pos.y + current.size.row });
-    // push({ x: pos.x, y: pos.y - current.size.row });
-    // push({ x: pos.x - current.size.col, y: pos.y });
-    // push({ x: pos.x + current.size.col, y: pos.y });
+    // 7 Вставляем
+    forShift.forEach(({ place, item }) => {
+      item.shiftTo(place);
+    });
 
-    return false;
+    // 8 Убираем с сетки элемент
+    this.changeTable(pos, current.size, null);
   }
 
   // panel

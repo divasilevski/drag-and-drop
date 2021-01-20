@@ -37,6 +37,7 @@ export class BoardItem {
       el.style.top = event.pageY - rootRect.top - hHeight + "px";
     } else {
       this.stick();
+      this.board.changeTable(this.pos!, this.size, this.key);
     }
 
     el.style.opacity = "1";
@@ -81,6 +82,7 @@ export class BoardItem {
     if (this.$el && this.pos && !isNaN(this.pos.x)) {
       // this.stick();
       this.shiftTo(this.pos);
+      this.board.changeTable(this.pos, this.size, this.key);
       this.mouse = undefined;
     } else {
       this.board.removeItem(this.key);
@@ -111,7 +113,6 @@ export class BoardItem {
     if (this.pos && this.$el) {
       this.$el.style.top = (100 / this.board.size.row) * this.pos.y + "%";
       this.$el.style.left = (100 / this.board.size.col) * this.pos.x + "%";
-      this.board.changeTable(this.pos, this.size, this.key);
     }
   }
 
