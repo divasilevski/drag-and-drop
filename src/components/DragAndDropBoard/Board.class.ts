@@ -1,8 +1,4 @@
-import {
-  comparePositions,
-  createMatrix,
-  indexOfSmallest,
-} from "./board.helpers";
+import { comparePositions, createMatrix } from "./board.helpers";
 import { Size, BoardItems, BoardOptions, Position } from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
 
@@ -13,7 +9,7 @@ export class Board {
   public prevCalculation: Position | null = null;
 
   private $pattern: HTMLElement;
-  private table: Array<Array<null | string>>; // null - если ячейка свободна, 'key' - ключ для заполненной ячейки
+  public table: Array<Array<null | string>>; // null - если ячейка свободна, 'key' - ключ для заполненной ячейки
   private $panel: HTMLElement;
   private listeners: { [key: string]: Function[] };
 
@@ -31,7 +27,6 @@ export class Board {
     this.$pattern.style.position = "absolute";
     this.hidePattern();
     this.listeners = {};
-
     this.createItems(options.state);
   }
 
@@ -153,90 +148,19 @@ export class Board {
 
     if (this.prevCalculation) {
       if (comparePositions(position, this.prevCalculation)) return null;
-      else this.prevCalculation = position;
-    } else {
-      this.prevCalculation = position;
     }
+    this.prevCalculation = position;
 
-    if (this.hasTableKeys(position, size)) {
-      try {
-        this.tryPush(key, position);
-      } catch (e) {
-        return null;
-      }
-    }
+    if (!this.pushingStrategy(key, position, size)) return null;
 
     this.showPattern(size, position);
 
     return position;
   }
 
-  tryPush(itemKey: string, pos: Position) {
-    const current = this.items[itemKey];
-    const table = JSON.parse(JSON.stringify(this.table));
-
-    // 1 Получаем ключи
-    const keys: any = new Set();
-    for (let i = 0; i < current.size.row; i++) {
-      for (let j = 0; j < current.size.col; j++) {
-        const key = this.table[i + pos.y][j + pos.x];
-        if (key) keys.add(key);
-      }
-    }
-
-    // 2 Формируем виджеты и сортируем по размеру
-    const widgets = [...keys]
-      .map((key: string) => this.items[key])
-      .sort((a, b) => b.size.row * b.size.col - a.size.row * a.size.col);
-
-    // 3 Открепление от сетки сформированных виджетов
-    widgets.forEach((item: BoardItem) => {
-      // console.log(item.pos);
-      this.changeTable(item.pos!, item.size, null);
-    });
-
-    // 4 Добавление на сетку текущего виджета
-    this.changeTable(pos, current.size, current.key);
-
-    const forShift: any[] = [];
-    widgets.forEach((item: BoardItem) => {
-      // 5 Поиск свободных мест последовательно
-      const places = [];
-      for (let y = 0; y <= this.size.row - item.size.row; y++) {
-        for (let x = 0; x <= this.size.col - item.size.col; x++) {
-          if (!this.hasTableKeys({ x, y }, item.size)) places.push({ x, y });
-        }
-      }
-      if (!places.length) {
-        this.table = table;
-        console.warn("Нет места");
-        throw new Error("Нет места");
-      }
-
-      // 6 Поиск ближайшего свободного
-      const distances = places.map((p: Position) => {
-        const cPlace = [p.x + item.size.col / 2, p.y + item.size.row / 2];
-        const cItem = [
-          item.pos!.x + item.size.col / 2,
-          item.pos!.y + item.size.row / 2,
-        ];
-        const d0 = cItem[0] - cPlace[0];
-        const d1 = cItem[1] - cPlace[1];
-        return Math.sqrt(d0 * d0 + d1 * d1);
-      });
-
-      const place = places[indexOfSmallest(distances)];
-      forShift.push({ item, place });
-      this.changeTable(place, item.size, item.key);
-    });
-
-    // 7 Вставляем
-    forShift.forEach(({ place, item }) => {
-      item.shiftTo(place);
-    });
-
-    // 8 Убираем с сетки элемент
-    this.changeTable(pos, current.size, null);
+  pushingStrategy(key: string, position: Position, size: Size) {
+    if (this.hasTableKeys(position, size)) return false;
+    return true;
   }
 
   // panel

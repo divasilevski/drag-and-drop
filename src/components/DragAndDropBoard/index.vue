@@ -4,7 +4,7 @@
     slot(name="widgets" :start="start")
       .widget-panel
         .widget(
-          v-for="(widget, key) in options.components"
+          v-for="(widget, key) in staticOptions.components"
           :key="'widget-' + index"
           @mousedown="start(key, $event)"
         )
@@ -29,10 +29,12 @@
       slot(name="lock" :lock="switchLock" :isLock="isLock")
         .lock(@click="switchLock") {{ isLock ? 'Unlock' : 'Lock' }}
 
+  div {{ dinamicOptions}}
+
 </template>
 
 <script lang="ts">
-import { Board } from "./Board.class";
+import { PushingBoard } from "./PushingBoard.class";
 import { computed, defineAsyncComponent, defineComponent, h, warn } from "vue";
 import { BoardOptions } from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
@@ -44,24 +46,33 @@ export default defineComponent({
     },
   },
   props: {
-    options: {
+    staticOptions: {
       type: Object,
       default: () => ({
         state: {},
         size: { col: 4, row: 3 },
       }),
     },
+    dinamicOptions: {
+      type: Object,
+      default: () => ({}),
+    },
   },
   data: () => ({
-    board: {} as Board,
+    board: {} as PushingBoard,
     grugItem: {} as any,
     events: [] as any[],
     isLock: true,
     panel: null,
   }),
+  watch: {
+    "dinamicOptions.pushing"(value) {
+      this.board.pushingMode(value);
+    },
+  },
   mounted() {
-    this.board = new Board(
-      this.options as BoardOptions,
+    this.board = new PushingBoard(
+      this.staticOptions as BoardOptions,
       this.$el.querySelector("[data-board-area]"),
       this.$el.querySelector("[data-board-selection] > div"),
       this.$el.querySelector("[data-board-panel] > div")

@@ -2,7 +2,12 @@
 div 
   .board-container
     .board-wrapper
-      DragAndDropBoard(:options="options" @save="saveBoard" @remove="removeItem")
+      DragAndDropBoard(
+        @save="saveBoard"
+        @remove="removeItem"
+        :staticOptions="staticOptions"
+        :dinamicOptions="dinamicOptions"
+      )
         template(#widgets="{start}")
           .widget-panel
             .widget(@mousedown="start('Cat', $event)" style="background: #efdfd2;")
@@ -18,12 +23,15 @@ div
           Note(name="Note" size="2:2")
           Clock(name="Clock" size="2:1")
           ProgressCheck(name="ProgressCheck" size="2:3")
-
+  Settings(
+    @pushing="dinamicOptions.pushing = $event"
+  )
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, reactive } from "vue";
 import DragAndDropBoard from "@/components/DragAndDropBoard/index.vue";
+import Settings from "@/components/Settings.vue";
 
 // Widgets
 import Cat from "@/components/widgets/Cat.vue";
@@ -37,6 +45,7 @@ export default defineComponent({
   name: "Home",
   components: {
     DragAndDropBoard,
+    Settings,
 
     Cat,
     Note,
@@ -45,16 +54,24 @@ export default defineComponent({
   },
   setup() {
     const state = JSON.parse(localStorage.getItem("bordItems") || "{}");
-    const options = {
+    const staticOptions = {
       size: { col: 6, row: 5 },
       state,
     };
+
+    const dinamicOptions = reactive({});
 
     const saveBoard = (items: any) => {
       localStorage.setItem("bordItems", JSON.stringify(items));
     };
 
-    return { options, saveBoard, removeItem: removeContent };
+    return {
+      dinamicOptions,
+      staticOptions,
+      saveBoard,
+      removeItem: removeContent,
+      log: (x: any) => console.log(x),
+    };
   },
 });
 </script>
