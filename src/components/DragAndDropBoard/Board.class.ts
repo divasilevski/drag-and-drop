@@ -10,12 +10,12 @@ export class Board {
   public items: BoardItems<BoardItem> = {};
   public size: Size;
   public $root: HTMLElement;
+  public prevCalculation: Position | null = null;
 
   private $pattern: HTMLElement;
   private table: Array<Array<null | string>>; // null - если ячейка свободна, 'key' - ключ для заполненной ячейки
   private $panel: HTMLElement;
   private listeners: { [key: string]: Function[] };
-  private prevCalculation: Position | null = null;
 
   constructor(
     options: BoardOptions,
@@ -117,8 +117,6 @@ export class Board {
   hasTableKeys(p: Position, size: Size): Boolean {
     for (let i = 0; i < size.row; i++) {
       for (let j = 0; j < size.col; j++) {
-        // if (this.table[p.y + i] === undefined) return true;
-        // if (this.table[p.y + i][p.x + j] === undefined) return true;
         if (this.table[p.y + i][p.x + j]) return true;
       }
     }
@@ -128,6 +126,7 @@ export class Board {
   // Calculation
   calculatePosition(e: MouseEvent, { key, pos, size, start }: BoardItem) {
     if (this.isBasket(e.pageX, e.pageY)) {
+      this.prevCalculation = { x: NaN, y: NaN };
       return { x: NaN, y: NaN };
     }
 
@@ -136,6 +135,7 @@ export class Board {
     let Y = e.pageY - rootRect.top - start.dy;
     const W = rootRect.width;
     const H = rootRect.height;
+
     const DW = W / this.size.col;
     const DH = H / this.size.row;
 

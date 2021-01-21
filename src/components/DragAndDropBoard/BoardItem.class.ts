@@ -80,7 +80,6 @@ export class BoardItem {
   endMove(event: MouseEvent) {
     event.preventDefault();
     if (this.$el && this.pos && !isNaN(this.pos.x)) {
-      // this.stick();
       this.shiftTo(this.pos);
       this.board.changeTable(this.pos, this.size, this.key);
       this.mouse = undefined;
@@ -88,6 +87,7 @@ export class BoardItem {
       this.board.removeItem(this.key);
     }
     this.board.hidePattern();
+    this.board.prevCalculation = null;
     document.onmousemove = null;
     document.onmouseup = null;
 
