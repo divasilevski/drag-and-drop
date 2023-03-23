@@ -1,19 +1,22 @@
-# vue-test
+# Drag and drop dashboard
+<span><img src="screenshots/screenshot.png" alt="screenshot" height="400"/></span>
 
-## Project setup
-```
-npm install
-```
 
-### Compiles and hot-reloads for development
+## Docker & Make
 ```
-npm run serve
+make build
+make run
 ```
 
-### Compiles and minifies for production
+## Manual build
 ```
-npm run build
+yarn
+yarn build
+yarn preview
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Dev
+```
+yarn
+yarn dev
+```
