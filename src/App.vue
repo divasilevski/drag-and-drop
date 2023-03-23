@@ -2,7 +2,7 @@
   <router-view />
 </template>
 
-<script>
+<script lang="ts" setup>
 const VERSION = "0.1.0";
 const version = localStorage.getItem("version");
 

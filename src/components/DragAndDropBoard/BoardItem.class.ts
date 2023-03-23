@@ -1,5 +1,5 @@
-import { Board } from "./Board.class";
-import { Position, Size } from "./board.interfaces";
+import type { Board } from "./Board.class";
+import type { Position, Size } from "./board.interfaces";
 
 export class BoardItem {
   public instance: string;

@@ -1,4 +1,4 @@
-import { BoardItem } from "./BoardItem.class";
+import type { BoardItem } from "./BoardItem.class";
 
 export interface Size {
   col: number;

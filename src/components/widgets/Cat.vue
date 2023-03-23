@@ -5,10 +5,10 @@
 </template>
 
 <script lang="ts">
-import { computed, defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
+import svgCat from "@/assets/svg/svgCat.vue";
 import { saveContent } from "./saveContent.setup";
 import { randInt } from "./widgets.helpers";
-import svgCat from "@/assets/svg/svgCat.vue";
 
 export default defineComponent({
   components: { svgCat },

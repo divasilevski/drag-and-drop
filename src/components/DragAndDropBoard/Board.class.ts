@@ -3,7 +3,12 @@ import {
   createMatrix,
   indexOfSmallest,
 } from "./board.helpers";
-import { Size, BoardItems, BoardOptions, Position } from "./board.interfaces";
+import type {
+  Size,
+  BoardItems,
+  BoardOptions,
+  Position,
+} from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
 
 export class Board {

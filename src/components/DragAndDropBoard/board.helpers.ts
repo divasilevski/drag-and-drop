@@ -1,4 +1,4 @@
-import { Position, Size } from "./board.interfaces";
+import type { Position, Size } from "./board.interfaces";
 
 export function comparePositions(
   pos1: Position | null,

@@ -1,4 +1,5 @@
-import { computed, Ref } from "vue";
+import { computed } from "vue";
+import type { Ref } from "vue";
 
 interface CheckItem {
   checked: boolean;

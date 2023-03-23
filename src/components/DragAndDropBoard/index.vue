@@ -32,9 +32,11 @@
 </template>
 
 <script lang="ts">
+import { defineComponent, h } from "vue";
+
+import type { BoardOptions } from "./board.interfaces";
+
 import { Board } from "./Board.class";
-import { computed, defineAsyncComponent, defineComponent, h, warn } from "vue";
-import { BoardOptions } from "./board.interfaces";
 import { BoardItem } from "./BoardItem.class";
 
 export default defineComponent({
